@@ -69,7 +69,7 @@ module pong(clk, reset, hsync, vsync, rgb);
   
   /// SCORE DISPLAY
   wire score_on;
-  reg [3:0] left_score_counter = 0;
+  reg [3:0] left_score_counter = 8;
   reg [3:0] right_score_counter = 0;
   scores_display score_dis(
     .counter_right(right_score_counter),

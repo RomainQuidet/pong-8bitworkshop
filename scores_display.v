@@ -34,15 +34,24 @@ module scores_display (
   wire left_window_active = left_window_h && window_v;
   wire right_window_active = right_window_h && window_v;
   
-  assign left_window_h = (h256 == 1) && (h128 == 0) && (h64 == 1);
-  assign right_window_h = (h256 == 0) && (h128 == 1) && (h64 == 0);
-  assign window_v = (v256 == 1) && (v128 == 1) && (v64 == 1);
+  assign left_window_h = ~h256 && h128 && ~h64;
+  assign right_window_h = h256 && ~h128 && h64;
+  assign window_v = ~v256 && ~v128 && ~v64 && v32;
   
-  // Segments activation
+  //// Segments activation
+  
+  wire a_display = (h16 && ~v16 && ~v8 && ~v4);  
+  wire b_display = (h16 && ~v16 && h8 && h4); 
+  wire c_display = (h16 && v16 && h8 && h4); 
+  wire d_display = (h16 && v16 && v8 && v4);
+  wire e_display = (h16 && v16 && ~h8 && ~h4);
+  wire f_display = (h16 && ~v16 && ~h8 && ~h4); 
+  wire g_display = (h16 && ~v16 && v8 && v4);
+  
   // Left low score
-  reg [3:0] left_low = 9;
-  wire ll_a, ll_b, ll_c, ll_d,ll_e, ll_f, ll_g;
-  segments seg(.value(left_low),
+  reg [3:0] left_low = (counter_left >= 10) ? counter_left - 10 : counter_left;
+  wire ll_a, ll_b, ll_c, ll_d, ll_e, ll_f, ll_g;
+  segments seg_ll(.value(left_low),
                .a(ll_a),
                .b(ll_b),
                .c(ll_c),
@@ -51,26 +60,56 @@ module scores_display (
                .f(ll_f),
                .g(ll_g)
               );
-  wire ll_a_display, ll_b_display, ll_c_display, ll_d_display,ll_e_display, ll_f_display, ll_g_display;
-  assign ll_a_display = ll_a && (h16 && ~v16 && ~v8 && ~v4);  
-  assign ll_b_display = ll_b && (h16 && ~v16 && h8 && h4); 
-  assign ll_c_display = ll_c && (h16 && v16 && h8 && h4); 
-  assign ll_d_display = ll_d && (h16 && ~v16 && v8 && v4);
-  assign ll_e_display = ll_e && (h16 && v16 && ~h8 && ~h4);
-  assign ll_f_display = ll_a && (h16 && ~v16 && ~h8 && ~h4); 
-  assign ll_g_display = ll_a && (h16 && ~v16 && v8 && v4);
+  wire ll_a_display = ll_a && a_display;  
+  wire ll_b_display = ll_b && b_display; 
+  wire ll_c_display = ll_c && c_display; 
+  wire ll_d_display = ll_d && d_display;
+  wire ll_e_display = ll_e && e_display;
+  wire ll_f_display = ll_f && f_display; 
+  wire ll_g_display = ll_g && g_display;
   
-  wire ll_segments_display;
-  assign ll_segments_display = (ll_a_display || ll_b_display || ll_c_display || ll_d_display || ll_e_display || ll_f_display|| ll_g_display);
+  wire ll_segments_display = ll_a_display || ll_b_display || ll_c_display 
+  				|| ll_d_display || ll_e_display || ll_f_display
+  				|| ll_g_display;
   
-  wire ll_score_display = left_window_active && ( ll_segments_display );
+  wire low_left_window_active = left_window_active && h32;
+  wire ll_score_display = low_left_window_active && ll_segments_display;
+  
+  // Left high score
+  reg [3:0] left_high = (counter_left >= 10) ? 1 : 0;
+  wire should_show_left_high = (counter_left >= 10);
+  wire lh_a, lh_b, lh_c, lh_d, lh_e, lh_f, lh_g;
+  segments seg_lh(.value(left_high),
+                  .a(lh_a),
+                  .b(lh_b),
+                  .c(lh_c),
+                  .d(lh_d),
+                  .e(lh_e),
+                  .f(lh_f),
+                  .g(lh_g)
+              );
+  wire lh_a_display = lh_a && a_display;  
+  wire lh_b_display = lh_b && b_display; 
+  wire lh_c_display = lh_c && c_display; 
+  wire lh_d_display = lh_d && d_display;
+  wire lh_e_display = lh_e && e_display;
+  wire lh_f_display = lh_f && f_display; 
+  wire lh_g_display = lh_g && g_display;
+  
+  wire lh_segments_display = lh_a_display || lh_b_display || lh_c_display 
+  				|| lh_d_display || lh_e_display || lh_f_display
+  				|| lh_g_display;
+  
+  wire left_high_window_active = left_window_active && ~h32;
+  wire lh_score_display = should_show_left_high &&
+  				left_high_window_active && lh_segments_display;
     
   
   // Right score
   
   // Score display
   
-  assign score_display = ll_score_display || right_window_active;
+  assign score_display = ll_score_display || lh_score_display || right_window_active;
 
 endmodule
 
