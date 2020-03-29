@@ -105,11 +105,66 @@ module scores_display (
   				left_high_window_active && lh_segments_display;
     
   
-  // Right score
+  // Right low score
+  reg [3:0] right_low = (counter_right >= 10) ? counter_right - 10 : counter_right;
+  wire rl_a, rl_b, rl_c, rl_d, rl_e, rl_f, rl_g;
+  segments seg_rl(.value(right_low),
+                  .a(rl_a),
+                  .b(rl_b),
+                  .c(rl_c),
+                  .d(rl_d),
+                  .e(rl_e),
+                  .f(rl_f),
+                  .g(rl_g)
+              );
+  wire rl_a_display = rl_a && a_display;  
+  wire rl_b_display = rl_b && b_display; 
+  wire rl_c_display = rl_c && c_display; 
+  wire rl_d_display = rl_d && d_display;
+  wire rl_e_display = rl_e && e_display;
+  wire rl_f_display = rl_f && f_display; 
+  wire rl_g_display = rl_g && g_display;
+  
+  wire rl_segments_display = rl_a_display || rl_b_display || rl_c_display 
+  				|| rl_d_display || rl_e_display || rl_f_display
+  				|| rl_g_display;
+  
+  wire right_low_window_active = right_window_active && h32;
+  wire rl_score_display = right_low_window_active && rl_segments_display;
+  
+  // Right high score
+  reg [3:0] right_high = (counter_right >= 10) ? 1 : 0;
+  wire should_show_right_high = (counter_right >= 10);
+  wire rh_a, rh_b, rh_c, rh_d, rh_e, rh_f, rh_g;
+  segments seg_rh(.value(right_high),
+                  .a(rh_a),
+                  .b(rh_b),
+                  .c(rh_c),
+                  .d(rh_d),
+                  .e(rh_e),
+                  .f(rh_f),
+                  .g(rh_g)
+              );
+  wire rh_a_display = rh_a && a_display;  
+  wire rh_b_display = rh_b && b_display; 
+  wire rh_c_display = rh_c && c_display; 
+  wire rh_d_display = rh_d && d_display;
+  wire rh_e_display = rh_e && e_display;
+  wire rh_f_display = rh_f && f_display; 
+  wire rh_g_display = rh_g && g_display;
+  
+  wire rh_segments_display = rh_a_display || rh_b_display || rh_c_display 
+  				|| rh_d_display || rh_e_display || rh_f_display
+  				|| rh_g_display;
+  
+  wire right_high_window_active = right_window_active && ~h32;
+  wire rh_score_display = should_show_right_high &&
+  				right_high_window_active && rh_segments_display;
   
   // Score display
   
-  assign score_display = ll_score_display || lh_score_display || right_window_active;
+  assign score_display = ll_score_display || lh_score_display 
+    				|| rl_score_display || rh_score_display;
 
 endmodule
 

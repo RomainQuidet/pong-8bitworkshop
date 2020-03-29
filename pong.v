@@ -70,7 +70,7 @@ module pong(clk, reset, hsync, vsync, rgb);
   /// SCORE DISPLAY
   wire score_on;
   reg [3:0] left_score_counter = 8;
-  reg [3:0] right_score_counter = 0;
+  reg [3:0] right_score_counter = 14;
   scores_display score_dis(
     .counter_right(right_score_counter),
     .counter_left(left_score_counter),
@@ -97,10 +97,9 @@ module pong(clk, reset, hsync, vsync, rgb);
   
   wire display_on = ~(hblank || vblank);
   
-  wire r = display_on && (net_on || score_on);
-  wire g = display_on && net_on;
-  wire b = display_on && net_on;
-  assign rgb = {b,g,r};
+  wire white = display_on && 
+  		(net_on || score_on);
+  assign rgb = {white,white,white};
 
 endmodule
 
