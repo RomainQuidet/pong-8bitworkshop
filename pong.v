@@ -3,10 +3,15 @@
 `include "net.v"
 `include "scores_display.v"
 `include "segments.v"
+`include "bats_display.v"
+`include "bat_data_generator.v"
 
-module pong(clk, reset, hsync, vsync, rgb);
+
+
+module pong(clk, reset, hsync, vsync, vpaddle, rgb);
 
   input clk, reset;
+  input vpaddle;
   output hsync, vsync;
   output [2:0] rgb;
   
@@ -93,12 +98,22 @@ module pong(clk, reset, hsync, vsync, rgb);
     .score_display(score_on)
   );
   
+  /// BATS DSIPLAY
+  wire bats_on;
+  bats_display bats_dis(
+    .h4(h4),
+    .h128(h128),
+    .h256(h256),
+    .hsync(hsync),
+    .left_start(vpaddle),
+    .display_on(bats_on)
+  );
+  
   /// AGREGATE DISPLAYS
   
   wire display_on = ~(hblank || vblank);
   
-  wire white = display_on && 
-  		(net_on || score_on);
+  wire white = display_on &&  (net_on || score_on || bats_on);
   assign rgb = {white,white,white};
 
 endmodule
